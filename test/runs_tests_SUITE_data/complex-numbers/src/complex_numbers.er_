@@ -1,27 +1,42 @@
 -module(complex_numbers).
 
 -export([abs/1, add/2, conjugate/1, divide/2, equal/2, exp/1, imaginary/1, mul/2, new/2,
-	 real/1, sub/2]).
+    real/1, sub/2]).
 
+-record(complex, {r = 0, i = 0}).
 
-abs(_Z) -> undefined.
+new(R, I) -> #complex{r = R, i = I}.
 
-add(_Z1, _Z2) -> undefined.
+abs(#complex{r = A, i = B}) ->
+    erlang:abs(math:sqrt(A * A + B * B)).
 
-conjugate(_Z) -> undefined.
+add(#complex{r = A, i = B}, #complex{r = C, i = D}) ->
+    #complex{r = A + C, i = B + D}.
 
-divide(_Z1, _Z2) -> undefined.
+conjugate(#complex{r = A, i = B}) ->
+    #complex{r = A, i = -B}.
 
-equal(_Z1, _Z2) -> undefined.
+divide(#complex{r = A, i = B}, #complex{r = C, i = D}) ->
+    #complex{
+        r = (A * C + B * D) / (C * C + D * D),
+        i = (B * C - A * D) / (C * C + D * D)}.
 
-exp(_Z) -> undefined.
+equal(#complex{r = A, i = B}, #complex{r = C, i = D}) when erlang:abs(A - C) < 0.005, erlang:abs(B - D) < 0.005 -> true;
+equal(_X, _Y) -> false.
 
-imaginary(_Z) -> undefined.
+exp(#complex{r = A, i = B}) ->
+    mul(
+        new(math:exp(A), 0),
+        new(math:cos(B), math:sin(B))).
 
-mul(_Z1, _Z2) -> undefined.
+imaginary(#complex{i = B}) ->
+    B.
 
-new(_R, _I) -> undefined.
+mul(#complex{r = A, i = B}, #complex{r = C, i = D}) ->
+    #complex{r = A * C - B * D, i = B * C + A * D}.
 
-real(_Z) -> undefined.
+real(#complex{r = A}) ->
+    A.
 
-sub(_Z1, _Z2) -> undefined.
+sub(#complex{r = A, i = B}, #complex{r = C, i = D}) ->
+    #complex{r = A - C, i = B - D}.

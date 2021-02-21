@@ -3,10 +3,19 @@
 -export([add/3, get/2, get/1, new/0]).
 
 
-add(_Name, _Grade, _School) -> undefined.
+new() ->
+    #{}.
 
-get(_Grade, _School) -> undefined.
+add(Name, Grade, School) ->
+    Class=maps:get(Grade, School, ordsets:new()),
+    School#{Grade => ordsets:add_element(Name, Class)}.
 
-get(_School) -> undefined.
+get(Grade, School) ->
+    ordsets:to_list(maps:get(Grade, School, ordsets:new())).
 
-new() -> undefined.
+get(School) ->
+    maps:fold(
+        fun (_, Class, Acc) -> Acc++ordsets:to_list(Class) end,
+        [],
+        School
+    ).

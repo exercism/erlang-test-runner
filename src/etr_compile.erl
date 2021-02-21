@@ -3,7 +3,7 @@
 -export([compile/2]).
 
 compile(BaseFolder, Exercise) ->
-    ModuleName = string:replace(Exercise, "-", "_"),
+    ModuleName = string:replace(Exercise, "-", "_", all),
     Solution = {Module, _, _} = compile_solution(BaseFolder, ModuleName),
     Tests = compile_test(BaseFolder, ModuleName),
     {Module, [Solution, Tests]}.

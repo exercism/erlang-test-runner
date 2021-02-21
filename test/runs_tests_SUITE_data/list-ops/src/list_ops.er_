@@ -3,18 +3,52 @@
 -export([append/2, concat/1, filter/2, length/1, map/2, foldl/3, foldr/3,
 	 reverse/1]).
 
-append(_List1, _List2) -> undefined.
+append(L1, L2) -> L1 ++ L2.
 
-concat(_List) -> undefined.
+concat(L) ->
+	concat(reverse(L), []).
 
-filter(_Function, _List) -> undefined.
+concat([], Acc) -> Acc;
+concat([Curr|Rest], Acc) ->
+	concat(Rest, extract_sublist(reverse(Curr), Acc)).
 
-length(_List) -> undefined.
+extract_sublist([], Acc) -> Acc;
+extract_sublist([Curr|Rest], Acc) -> extract_sublist(Rest, [Curr|Acc]).
 
-map(_Function, _List) -> undefined.
+filter(Fun, L) ->
+	filter(Fun, L, []).
 
-foldl(_Function, _Start, _List) -> undefined.
+filter(_, [], Acc) -> reverse(Acc);
+filter(Fun, [Curr|Rest], Acc) ->
+	case Fun(Curr) of
+		true -> filter(Fun, Rest, [Curr|Acc]);
+		false -> filter(Fun, Rest, Acc)
+	end.
 
-foldr(_Function, _Start, _List) -> undefined.
+length(L) -> length(L, 0).
 
-reverse(_List) -> undefined.
+length([], Acc) -> Acc;
+length([_|Rest], Acc) -> length(Rest, Acc + 1).
+
+map(Fun, L) ->
+	map(Fun, L, []).
+
+map(_, [], Acc) -> reverse(Acc);
+map(Fun, [Curr|Rest], Acc) -> map(Fun, Rest, [Fun(Curr)|Acc]).
+
+foldl(Fun, Start, L) -> reduce_foldl(Fun, L, Start).
+reduce_foldl(_, [], Acc) -> Acc;
+reduce_foldl(Fun, [Curr|Rest], Acc) ->
+	reduce_foldl(Fun, Rest, Fun(Curr, Acc)).
+
+foldr(Fun, Start, L) -> reduce_foldr(Fun, reverse(L), Start).
+
+reduce_foldr(_, [], Acc) -> Acc;
+reduce_foldr(Fun, [Curr|Rest], Acc) ->
+	reduce_foldr(Fun, Rest, Fun(Curr, Acc)).
+
+reverse(L) ->
+	reverse(L, []).
+
+reverse([], Acc) -> Acc;
+reverse([Curr|Rest], Acc) -> reverse(Rest, [Curr|Acc]).
