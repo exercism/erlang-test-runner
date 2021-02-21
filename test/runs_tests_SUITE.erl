@@ -1,9 +1,19 @@
 -module(runs_tests_SUITE).
 
--compile(export_all).
-
 -include_lib("common_test/include/ct.hrl").
 -include_lib("stdlib/include/assert.hrl").
+
+-export([
+    %% Common Test Callbacks
+    all/0,
+    init_per_suite/1,
+    end_per_suite/1,
+    init_per_testcase/2,
+    end_per_testcase/2,
+
+    %% Test Cases
+    two_fer/1
+]).
 
 all() ->
     [two_fer].
