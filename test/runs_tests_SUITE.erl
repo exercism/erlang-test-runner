@@ -205,7 +205,7 @@ end_per_testcase(TestCase, Config) ->
     ct:log("Purged modules from memory: ~p", [[Mod || {Mod, _, _} <- ?config(module_specs, Config)]]),
     file:set_cwd(?config(old_pwd, Config)).
 
-accumulate(_Config) -> ok = eunit:test(accumulate).
+accumulate(_Config) -> ok = etr_runner:run(accumulate).
 allergies(_Config) -> ok = eunit:test(allergies).
 all_your_base(_Config) -> ok = eunit:test(all_your_base).
 anagram(_Config) -> ok = eunit:test(anagram).
@@ -278,7 +278,7 @@ sublist(_Config) -> ok = eunit:test(sublist).
 sum_of_multiples(_Config) -> ok = eunit:test(sum_of_multiples).
 transpose(_Config) -> ok = eunit:test(transpose).
 triangle(_Config) -> ok = eunit:test(triangle).
-two_fer(_Config) -> ok = eunit:test(two_fer).
+two_fer(_Config) -> ok = etr_runner:run(two_fer).
 variable_length_quantity(_Config) -> ok = eunit:test(variable_length_quantity).
 word_count(_Config) -> ok = eunit:test(word_count).
 zipper(_Config) -> ok = eunit:test(zipper).
