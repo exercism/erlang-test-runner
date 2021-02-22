@@ -1,0 +1,89 @@
+-module(bank_account).
+
+-export([
+  balance/1,
+  charge/2,
+  close/1,
+  create/0,
+  deposit/2,
+  withdraw/2
+]).
+
+-export([
+  init/1,
+  handle_call/3,
+  handle_cast/2,
+  handle_info/2,
+  code_change/3,
+  terminate/2
+]).
+
+-behaviour(gen_server).
+
+-record(account, {pid}).
+
+
+
+%%% Public API
+
+create() ->
+  {ok, PID} = gen_server:start(?MODULE, [], []),
+  #account{pid=PID}.
+
+balance(#account{pid=PID}) ->
+  gen_server:call(PID, balance, infinity).
+
+charge(#account{pid=PID}, Amount) ->
+  gen_server:call(PID, {charge, Amount}, infinity).
+
+close(#account{pid=PID}) ->
+  gen_server:call(PID, close, infinity).
+
+deposit(#account{pid=PID}, Amount) ->
+  gen_server:call(PID, {deposit, Amount}, infinity).
+
+withdraw(#account{pid=PID}, Amount) ->
+  gen_server:call(PID, {withdraw, Amount}, infinity).
+
+%%% gen_server API
+
+init([]) ->
+  {ok, 0}.
+
+handle_call(_, _From, closed) ->
+  {reply, {error, account_closed}, closed};
+handle_call(close, _From, Balance) ->
+  {reply, Balance, closed};
+handle_call(balance, _From, Balance) ->
+  {reply, Balance, Balance};
+handle_call({deposit, Amount}, _From, Balance) when Amount > 0 ->
+  {reply, Amount, Balance + Amount};
+handle_call({deposit, _}, _From, Balance) ->
+  {reply, Balance, Balance};
+handle_call({withdraw, Amount}, _From, Balance) when Amount > Balance ->
+  {reply, Balance, 0};
+handle_call({withdraw, Amount}, _From, Balance) when Amount > 0 ->
+  Balance1 = Balance - Amount,
+  {reply, Amount, Balance1};
+handle_call({withdraw, _}, _From, Balance) ->
+  {reply, 0, Balance};
+handle_call({charge, Amount}, _From, Balance) when Amount > Balance ->
+  {reply, 0, Balance};
+handle_call({charge, Amount}, _From, Balance) when Amount > 0 ->
+  {reply, Amount, Balance - Amount};
+handle_call({charge, _}, _From, Balance) ->
+  {reply, 0, Balance}.
+
+
+handle_cast(_, Balance) ->
+  {noreply, Balance}.
+
+
+handle_info(_, Balance) -> % Can be removed when we drop support of OTP 19
+  {noreply, Balance}.
+
+code_change(_, _, _) -> % Can be removed when we drop support of OTP 19
+  {error, code_change_not_supported}.
+
+terminate(_, _) -> % Can be removed when we drop support of OTP 19
+  ok.
