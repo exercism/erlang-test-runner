@@ -9,7 +9,7 @@ run(Module) ->
      || {Fun, _} <- TestModule:module_info(exports),
         match == re:run(atom_to_binary(Fun, utf8), "_test_?$", [{capture, none}])
     ],
-    Runs = [run_case(TestModule, Fun, Gen) || {Fun, Gen} <- TestFuns].
+    [run_case(TestModule, Fun, Gen) || {Fun, Gen} <- TestFuns].
 
 get_test_module_from(Module) when is_atom(Module) ->
     get_test_module_from(atom_to_binary(Module, utf8));
@@ -25,7 +25,7 @@ run_case(Module, Fun, false) ->
     {atom_to_binary(Fun, utf8), run_case(erlang:make_fun(Module, Fun, 0))};
 run_case(Module, Gen, true) ->
     {Description, {_, Fun}} = Module:Gen(),
-    {Description, run_case(Fun)}.
+    {list_to_binary(Description), run_case(Fun)}.
 
 run_case(Fun) ->
     try Fun() of
