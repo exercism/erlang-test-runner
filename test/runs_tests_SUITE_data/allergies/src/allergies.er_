@@ -5,7 +5,7 @@
 -define(SUBSTANCES, #{
                         eggs => 2#00000001,
                         peanuts => 2#00000010,
-                        shellfish => 2#00000100,
+                        shellfishes => 2#00000100,
                         strawberries => 2#00001000,
                         tomatoes => 2#00010000,
                         chocolate => 2#00100000,

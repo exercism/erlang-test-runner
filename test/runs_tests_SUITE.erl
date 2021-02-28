@@ -97,6 +97,35 @@
     ?assertVersion(Expr),
     ?assertMatch(#{status := Status}, Expr)
 ).
+-define(assertNumFails(Num, Expr), begin
+    ((fun() ->
+        __X = (Num),
+        __Y = (Expr),
+        __Tests = map_get(tests, __Y),
+        __NumTests = lists:foldl(
+            fun
+                (#{status := <<"pass">>}, C) -> C;
+                (#{status := <<"fail">>}, C) -> C + 1
+            end,
+            0,
+            __Tests
+        ),
+        case __NumTests =:= __X of
+            true ->
+                ok;
+            false ->
+                erlang:error(
+                    [
+                        {module, ?MODULE},
+                        {line, ?LINE},
+                        {expression, (??Expr)},
+                        {expected, __X},
+                        {value, __NumTests}
+                    ]
+                )
+        end
+    end)())
+end).
 
 all() ->
     [{group, sample_exercises}].
@@ -219,9 +248,14 @@ end_per_testcase(TestCase, Config) ->
 
 accumulate(_Config) ->
     Result = etr_runner:run(accumulate),
-    ?assertTopLevel(<<"pass">>, Result).
+    ?assertTopLevel(<<"pass">>, Result),
+    ?assertNumFails(0, Result).
 
-allergies(_Config) -> ok = eunit:test(allergies).
+allergies(_Config) ->
+    Result = etr_runner:run(allergies),
+    ?assertTopLevel(<<"fail">>, Result),
+    ?assertNumFails(6, Result).
+
 all_your_base(_Config) -> ok = eunit:test(all_your_base).
 anagram(_Config) -> ok = eunit:test(anagram).
 armstrong_numbers(_Config) -> ok = eunit:test(armstrong_numbers).
@@ -296,7 +330,8 @@ triangle(_Config) -> ok = eunit:test(triangle).
 
 two_fer(_Config) ->
     Result = etr_runner:run(two_fer),
-    ?assertTopLevel(<<"fail">>, Result).
+    ?assertTopLevel(<<"fail">>, Result),
+    ?assertNumFails(1, Result).
 
 variable_length_quantity(_Config) -> ok = eunit:test(variable_length_quantity).
 word_count(_Config) -> ok = eunit:test(word_count).

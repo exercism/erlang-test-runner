@@ -73,6 +73,25 @@ humanize({assertStringEqual, Info}) ->
             proplists:get_value(expected, Info),
             proplists:get_value(value, Info)
         ]
+    );
+humanize({assert, Info}) ->
+    io_lib:format(
+        "The expression `~s` was expected to return `true`, but it returned "
+        "`~p` instead",
+        [
+            proplists:get_value(expression, Info),
+            proplists:get_value(value, Info)
+        ]
+    );
+humanize({assertMatch, Info}) ->
+    io_lib:format(
+        "The expression `~s` was expected to return a value that matches the "
+        "value `~p`, though the returned value `~p` does not match",
+        [
+            proplists:get_value(expression, Info),
+            proplists:get_value(pattern, Info),
+            proplists:get_value(value, Info)
+        ]
     ).
 
 get_status(Tests) -> get_status(Tests, <<"pass">>).
