@@ -229,18 +229,18 @@ init_per_testcase(TestCase, Config) ->
     {TestCase, ModuleSpecs} = etr_compile:compile(BaseDir, FolderName),
     code:atomic_load(ModuleSpecs),
     ct:log("Modules loaded: ~p", [[Mod || {Mod, _, _} <- ModuleSpecs]]),
-    eunit:start(),
-    ct:log("EUnit started"),
-    [
+    Config1 = [
         {folder_name, FolderName},
         {base_dir, BaseDir},
         {old_pwd, PWD},
         {module_specs, ModuleSpecs}
         | Config
-    ].
+    ],
+    ct:log("assembled config: ~p", [Config1]),
+    Config1.
 
 end_per_testcase(TestCase, Config) ->
-    eunit:stop(),
+    %% eunit:stop(),
     ct:log("EUnit stopped"),
     [code:purge(Mod) || {Mod, _, _} <- ?config(module_specs, Config)],
     ct:log("Purged modules from memory: ~p", [[Mod || {Mod, _, _} <- ?config(module_specs, Config)]]),
