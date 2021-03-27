@@ -2,4 +2,4 @@
 
 printf "Exercise: %s\nSolution: %s\nOutput:   %s\n" "$1" "$2" "$3"
 
-exit 1
+exec /opt/test-runner/bin/erlang_test_runner "$@"
