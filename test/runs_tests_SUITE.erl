@@ -215,13 +215,13 @@ groups() ->
 
 init_per_suite(Config) ->
     DataDir = ?config(data_dir, Config),
-    scan_and_rename(DataDir),
+    testing_tools:scan_and_rename(DataDir),
     Config.
 
 end_per_suite(Config) -> Config.
 
 init_per_testcase(TestCase, Config) ->
-    FolderName = unslug(TestCase),
+    FolderName = testing_tools:unslug(TestCase),
     BaseDir = filename:join(?config(data_dir, Config), FolderName),
     {ok, PWD} = file:get_cwd(),
     file:set_cwd(BaseDir),
@@ -336,41 +336,3 @@ two_fer(_Config) ->
 variable_length_quantity(_Config) -> ok = eunit:test(variable_length_quantity).
 word_count(_Config) -> ok = eunit:test(word_count).
 zipper(_Config) -> ok = eunit:test(zipper).
-
-scan_and_rename(Path) ->
-    case {filelib:is_dir(Path), re:run(Path, "\\.er_$", [{capture, none}])} of
-        {true, _} ->
-            {ok, Files} = file:list_dir_all(Path),
-            Pathes = [filename:join(Path, File) || File <- Files],
-            [scan_and_rename(Path2) || Path2 <- Pathes],
-            ok;
-        {false, match} ->
-            NewName = iolist_to_binary(re:replace(Path, ".er_$", ".erl")),
-            do_rename(Path, NewName),
-            ok;
-        {false, nomatch} ->
-            ct:log("Skipping file ~p", [Path]),
-            ok
-    end.
-
-do_rename(OldName, NewName) ->
-    case file:read_file_info(NewName) of
-        {error, enoent} ->
-            ct:log("Target ~s does not exist, renaming", [NewName]);
-        {ok, _} ->
-            ct:log("Target ~s does already exist, deleting", [NewName]),
-            ok = file:delete(NewName)
-    end,
-    case file:rename(OldName, NewName) of
-        ok ->
-            ct:log("Renamed File ~s to ~s", [OldName, NewName]);
-        {error, Reason} ->
-            ct:log("Renaming ~s to ~s failed with reason ~p", [OldName, NewName, Reason])
-    end.
-
-unslug(Atom) when is_atom(Atom) ->
-    unslug(atom_to_list(Atom));
-unslug(String) ->
-    Unslugged = string:replace(String, "_", "-", all),
-    ct:log("Unslugged: ~p, ~s", [Unslugged, Unslugged]),
-    Unslugged.
