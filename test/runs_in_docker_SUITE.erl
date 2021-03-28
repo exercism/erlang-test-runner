@@ -210,18 +210,18 @@ end_per_testcase(_TestCase, Config) -> Config.
 
 run_docker(Config) ->
     Target = filename:join(?config(priv_dir, Config), ?config(folder_name, Config)),
-    Cmd = unicode:characters_to_list(
-        io_lib:format(
-            "~s run --volume ~s:/input --volume ~s:/output erlang_test_runner:common_test ~s /input /output/",
-            [
-                ?config(docker, Config),
-                ?config(base_dir, Config),
-                Target,
-                ?config(folder_name, Config)
-            ]
-        )
-    ),
-    ct:log(os:cmd(Cmd)).
+    {done, 0, _} = erlsh:run([
+        ?config(docker, Config),
+        "run",
+        "--volume",
+        io_lib:format("~s:/input:ro", [?config(base_dir, Config)]),
+        "--volume",
+        io_lib:format("~s:/output", [Target]),
+        "erlang_test_runner:common_test",
+        ?config(folder_name, Config),
+        "/input",
+        "/output"
+    ]).
 
 check_result(Config) ->
     {ok, JSON} = file:read_file(
