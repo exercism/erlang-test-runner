@@ -20,8 +20,11 @@ RUN ./rebar3 escriptize; find . -type f -executable
 
 FROM ERLANG as RUNNER
 
+copy --from=BUILDER /app/_build/default/lib/erl_exercism /opt/erl_exercism
 COPY --from=BUILDER /app/_build/default/bin/erlang_test_runner /opt/test-runner/bin/
 COPY run.sh /opt/test-runner/bin/run.sh
+
+ENV ERL_LIBS=/opt/erl_exercism
 
 WORKDIR "/opt/test-runner"
 
