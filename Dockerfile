@@ -9,7 +9,7 @@ RUN apt update; apt install --yes curl; \
     curl -L https://github.com/erlang/rebar3/releases/download/3.14.4/rebar3 > /tmp/tools/rebar3; \
     chmod +x /tmp/tools/*
 
-FROM erlang AS builder
+FROM erlang as builder
 
 COPY --from=downloader /tmp/tools/rebar3 rebar3
 COPY rebar.config rebar.lock ./
