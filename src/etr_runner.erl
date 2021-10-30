@@ -10,7 +10,7 @@ run(Module) ->
         match == re:run(atom_to_binary(Fun, utf8), "_test_?$", [{capture, none}])
     ],
     Results = [run_case(TestModule, Fun, Gen) || {Fun, Gen} <- TestFuns],
-    Tests = [grade_test(Result) || Result <- Results],
+    Tests = lists:flatten([grade_test(Result) || Result <- Results]),
     #{
         version => 2,
         status => get_status(Tests),
@@ -30,8 +30,11 @@ get_test_module_from(Module) ->
 run_case(Module, Fun, false) ->
     {atom_to_binary(Fun, utf8), run_case(erlang:make_fun(Module, Fun, 0))};
 run_case(Module, Gen, true) ->
-    {Description, {_, Fun}} = Module:Gen(),
-    {list_to_binary(Description), run_case(Fun)}.
+    Runner = fun({Description, {_, Fun}}) -> {list_to_binary(Description), run_case(Fun)} end,
+    case Module:Gen() of
+        {_, {_, _}} = Case -> Runner(Case);
+        L when is_list(L) -> lists:map(Runner, L)
+    end.
 
 run_case(Fun) ->
     {Self, Ref} = {self(), make_ref()},
@@ -50,6 +53,7 @@ sweep_inbox(Ref, MRef, Result) ->
     after 0 -> Result
     end.
 
+grade_test(L) when is_list(L) -> lists:map(fun grade_test/1, L);
 grade_test({Name, {pass, ok}}) ->
     #{
         name => Name,
