@@ -97,6 +97,15 @@ humanize({assertMatch, Info}) ->
             proplists:get_value(value, Info)
         ]
     );
+humanize({assertEqual, Info}) ->
+    io_lib:format(
+      "The expression `~p` was expected to return a value that equals the "
+      "value `~p`, though the returned value `~p` is different",
+      [
+       proplists:get_value(expression, Info),
+       proplists:get_value(expected, Info),
+       proplists:get_value(value, Info)
+      ]);
 humanize({Assertion, Info}) ->
     io_lib:format(
         "An unknown assertion occured and failed, please report an issue at "
