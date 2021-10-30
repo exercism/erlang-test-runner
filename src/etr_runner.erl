@@ -103,8 +103,7 @@ humanize({Assertion, Info}) ->
         "https://github.com/exercism/erlang-test-runner/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc "
         "for the '~p' assertion unless it already exists. Please privide the "
         "following additional info: Exercise, failed test and assertion info: '~p'",
-        Assertion,
-        Info
+        [Assertion, Info]
     ).
 
 get_status(Tests) -> get_status(Tests, <<"pass">>).
