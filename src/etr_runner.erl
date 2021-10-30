@@ -53,6 +53,7 @@ sweep_inbox(Ref, MRef, Result) ->
     after 0 -> Result
     end.
 
+grade_test(L) when is_list(L) -> lists:map(fun grade_test/1, L);
 grade_test({Name, {pass, ok}}) ->
     #{
         name => Name,
