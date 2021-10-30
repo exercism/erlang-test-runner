@@ -10,7 +10,7 @@ run(Module) ->
         match == re:run(atom_to_binary(Fun, utf8), "_test_?$", [{capture, none}])
     ],
     Results = [run_case(TestModule, Fun, Gen) || {Fun, Gen} <- TestFuns],
-    Tests = [grade_test(Result) || Result <- Results],
+    Tests = lists:flatten([grade_test(Result) || Result <- Results]),
     #{
         version => 2,
         status => get_status(Tests),
