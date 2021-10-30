@@ -37,7 +37,7 @@ compile_test(BaseFolder, Name) ->
             ]
         )
     ),
-    CompileOpts = [binary, verbose, report_errors, report_warnings],
+    CompileOpts = [binary, verbose, report_errors, report_warnings, debug_info],
     {ok, Module, Binary} = compile:file(FileName, CompileOpts),
     BeamName = binary_to_list(iolist_to_binary([Name | ".beam"])),
     {Module, BeamName, Binary}.
