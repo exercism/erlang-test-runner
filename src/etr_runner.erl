@@ -1,8 +1,8 @@
 -module(etr_runner).
 
--export([run/1]).
+-export([run/2]).
 
-run(Module) ->
+run(Module, Abstract) ->
     TestModule = get_test_module_from(Module),
     TestFuns = [
         {Fun, match == re:run(atom_to_binary(Fun, utf8), "_$", [{capture, none}])}
@@ -10,7 +10,7 @@ run(Module) ->
         match == re:run(atom_to_binary(Fun, utf8), "_test_?$", [{capture, none}])
     ],
     Results = [run_case(TestModule, Fun, Gen) || {Fun, Gen} <- TestFuns],
-    Tests = lists:flatten([grade_test(Result) || Result <- Results]),
+    Tests = lists:flatten([grade_test(Result, Abstract) || Result <- Results]),
     #{
         version => 2,
         status => get_status(Tests),
@@ -30,7 +30,7 @@ get_test_module_from(Module) ->
 run_case(Module, Fun, false) ->
     {atom_to_binary(Fun, utf8), run_case(erlang:make_fun(Module, Fun, 0))};
 run_case(Module, Gen, true) ->
-    Runner = fun({Description, {_, Fun}}) -> {list_to_binary(Description), run_case(Fun)} end,
+    Runner = fun({Description, {Line, Fun}}) -> {list_to_binary(Description), run_case(Fun)} end,
     case Module:Gen() of
         {_, {_, _}} = Case -> Runner(Case);
         L when is_list(L) -> lists:map(Runner, L)
@@ -53,19 +53,31 @@ sweep_inbox(Ref, MRef, Result) ->
     after 0 -> Result
     end.
 
-grade_test(L) when is_list(L) -> lists:map(fun grade_test/1, L);
-grade_test({Name, {pass, ok}}) ->
+grade_test(L, Abstract) when is_list(L) -> lists:map(fun(X) -> grade_test(X, Abstract) end, L);
+grade_test({Name, {pass, ok}}, _Abstract) ->
     #{
         name => Name,
         status => <<"pass">>
     };
-grade_test({Name, {fail, Exception}}) ->
+grade_test({Name, {fail, Exception}}, Abstract) ->
     Message = iolist_to_binary(humanize(Exception)),
     #{
         name => Name,
         status => <<"fail">>,
-        message => Message
+        message => Message,
+        test_code => find_test_code(Abstract, Exception)
     }.
+
+find_test_code(Abstract, Exception) ->
+    Line = proplists:get_value(line, element(2, Exception)),
+    Funs = [
+        Node
+     || Node <- Abstract,
+        erl_syntax:type(Node) =:= function,
+        Line > erl_syntax:get_pos(Node)
+    ],
+    Fun = hd(lists:reverse(Funs)),
+    unicode:characters_to_binary(erl_pp:form(Fun)).
 
 humanize({assertStringEqual, Info}) ->
     io_lib:format(
