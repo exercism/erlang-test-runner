@@ -10,9 +10,9 @@
 %% escript Entry point
 main([Exercise, InputDir, OutputDir]) ->
     file:set_cwd(InputDir),
-    {Module, Modules} = etr_compile:compile(InputDir, Exercise),
+    {Module, Modules, Abstract} = etr_compile:compile(InputDir, Exercise),
     code:atomic_load(Modules),
-    Results = etr_runner:run(Module),
+    Results = etr_runner:run(Module, Abstract),
     io:format("~p~n", [Results]),
     ResultsJson = jsx:encode(Results, [space, {indent, 2}]),
     io:format("~s~n", [ResultsJson]),
