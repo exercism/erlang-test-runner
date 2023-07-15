@@ -9,8 +9,7 @@
       system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
-          beamPackages = pkgs.beam.packagesWith
-            pkgs.beam_nox.interpreters.erlangR24;
+          beamPackages = with pkgs.beam_minimal; packagesWith interpreters.erlangR25;
         in
           rec {
             packages = flake-utils.lib.flattenTree rec {
@@ -18,8 +17,11 @@
                 beamPackages.callPackage ./nix/test_runner.nix { inherit self; };
             };
             defaultPackage = packages.erlang-test-runner;
-            devShell = pkgs.mkShell {
-              buildInputs = with beamPackages; [ erlang rebar3 ] ++ (with pkgs; [ nixpkgs-fmt ]);
+            devShells.default = pkgs.mkShell {
+              packages = builtins.attrValues {
+                inherit (beamPackages) erlang rebar3;
+                inherit (pkgs) alejandra nil;
+              };
             };
           }
     );
