@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs-channels/nixos-20.03";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -10,7 +10,7 @@
         let
           pkgs = nixpkgs.legacyPackages.${system};
           beamPackages = pkgs.beam.packagesWith
-            pkgs.beam.interpreters.erlangR22_nox;
+            pkgs.beam_nox.interpreters.erlangR24;
         in
           rec {
             packages = flake-utils.lib.flattenTree rec {

@@ -5,8 +5,8 @@
 compile(BaseFolder, Exercise) ->
     ModuleName = string:replace(Exercise, "-", "_", all),
     Solution = {Module, _, _} = compile_solution(BaseFolder, ModuleName),
-    Tests = compile_test(BaseFolder, ModuleName),
-    {Module, [Solution, Tests]}.
+    {Tests, AbstractTests} = compile_test(BaseFolder, ModuleName),
+    {Module, [Solution, Tests], AbstractTests}.
 
 %%====================================================================
 %% Internal functions
@@ -40,4 +40,7 @@ compile_test(BaseFolder, Name) ->
     CompileOpts = [binary, verbose, report_errors, report_warnings],
     {ok, Module, Binary} = compile:file(FileName, CompileOpts),
     BeamName = binary_to_list(iolist_to_binary([Name | ".beam"])),
-    {Module, BeamName, Binary}.
+
+    {ok, Abstract} = epp:parse_file(FileName, []),
+
+    {{Module, BeamName, Binary}, Abstract}.
