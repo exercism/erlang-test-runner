@@ -18,7 +18,7 @@ RUN ./rebar3 get-deps
 COPY src/ src/
 RUN ./rebar3 escriptize; find . -type f -executable
 
-FROM erlang AS runner
+FROM erlang:26-alpine AS runner
 
 copy --from=builder /app/_build/default/lib/erl_exercism /opt/erl_exercism
 COPY --from=builder /app/_build/default/bin/erlang_test_runner /opt/test-runner/bin/
