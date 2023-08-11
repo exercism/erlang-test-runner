@@ -1,0 +1,9 @@
+{application, empty_file,
+  [{description, "exercism.org - empty_file"},
+    {vsn, "0.0.1"},
+    {modules, []},
+    {registered, []},
+    {applications, [kernel,
+      stdlib]},
+    {env, []}
+  ]}.

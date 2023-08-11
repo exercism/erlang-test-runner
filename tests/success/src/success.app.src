@@ -1,0 +1,9 @@
+{application, success,
+  [{description, "exercism.org - success"},
+    {vsn, "0.0.1"},
+    {modules, []},
+    {registered, []},
+    {applications, [kernel,
+      stdlib]},
+    {env, []}
+  ]}.

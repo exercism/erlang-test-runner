@@ -5,3 +5,7 @@
 .gitattributes
 .dockerignore
 Dockerfile
+bin/
+test/
+tests/
+!bin/run.sh
