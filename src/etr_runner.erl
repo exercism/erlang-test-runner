@@ -60,7 +60,7 @@ grade_test({Name, {pass, ok}}, _Abstract) ->
         status => <<"pass">>
     };
 grade_test({Name, {fail, Exception}}, Abstract) ->
-    Message = iolist_to_binary(humanize(Exception)),
+    Message = iolist_to_binary(etr_humanize:assertion(Exception)),
     #{
         name => Name,
         status => <<"fail">>,
@@ -78,55 +78,6 @@ find_test_code(Abstract, Exception) ->
     ],
     Fun = hd(lists:reverse(Funs)),
     unicode:characters_to_binary(erl_pp:form(Fun)).
-
-humanize({assertStringEqual, Info}) ->
-    io_lib:format(
-        "The expression `~s` was expected to return a string or binary "
-        "or nested list of either, that compares equal to ~p, but it returned "
-        "~p instead",
-        [
-            proplists:get_value(expression, Info),
-            proplists:get_value(expected, Info),
-            proplists:get_value(value, Info)
-        ]
-    );
-humanize({assert, Info}) ->
-    io_lib:format(
-        "The expression `~s` was expected to return `true`, but it returned "
-        "`~p` instead",
-        [
-            proplists:get_value(expression, Info),
-            proplists:get_value(value, Info)
-        ]
-    );
-humanize({assertMatch, Info}) ->
-    io_lib:format(
-        "The expression `~s` was expected to return a value that matches the "
-        "value `~p`, though the returned value `~p` does not match",
-        [
-            proplists:get_value(expression, Info),
-            proplists:get_value(pattern, Info),
-            proplists:get_value(value, Info)
-        ]
-    );
-humanize({assertEqual, Info}) ->
-    io_lib:format(
-        "The expression `~p` was expected to return a value that equals the "
-        "value `~p`, though the returned value `~p` is different",
-        [
-            proplists:get_value(expression, Info),
-            proplists:get_value(expected, Info),
-            proplists:get_value(value, Info)
-        ]
-    );
-humanize({Assertion, Info}) ->
-    io_lib:format(
-        "An unknown assertion occured and failed, please report an issue at "
-        "https://github.com/exercism/erlang-test-runner/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc "
-        "for the '~p' assertion unless it already exists. Please provide the "
-        "following additional info: Exercise, failed test and assertion info: '~p'",
-        [Assertion, Info]
-    ).
 
 get_status(Tests) -> get_status(Tests, <<"pass">>).
 
