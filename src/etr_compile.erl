@@ -4,9 +4,12 @@
 
 compile(BaseFolder, Exercise) ->
     ModuleName = string:replace(Exercise, "-", "_", all),
-    Solution = {Module, _, _} = compile_solution(BaseFolder, ModuleName),
-    {Tests, AbstractTests} = compile_test(BaseFolder, ModuleName),
-    {Module, [Solution, Tests], AbstractTests}.
+    case compile_solution(BaseFolder, ModuleName) of
+        {ok, Solution = {Module, _, _}} ->
+            {Tests, AbstractTests} = compile_test(BaseFolder, ModuleName),
+            {Module, [Solution, Tests], AbstractTests};
+        {error, Errors} -> {error, Errors}
+    end.
 
 %%====================================================================
 %% Internal functions
@@ -22,10 +25,13 @@ compile_solution(BaseFolder, Name) ->
             ]
         )
     ),
-    CompileOpts = [binary, verbose, report_errors, report_warnings],
-    {ok, Module, Binary} = compile:file(FileName, CompileOpts),
-    BeamName = binary_to_list(iolist_to_binary([Name | ".beam"])),
-    {Module, BeamName, Binary}.
+    CompileOpts = [binary, verbose, return_errors, return_warnings],
+    case compile:file(FileName, CompileOpts) of
+        {ok, Module, Binary, _Warnings} ->
+            BeamName = binary_to_list(iolist_to_binary([Name | ".beam"])),
+            {ok, {Module, BeamName, Binary}};
+        {error, Errors, _Warnings} -> {error, Errors}
+    end.
 
 compile_test(BaseFolder, Name) ->
     FileName = binary_to_list(

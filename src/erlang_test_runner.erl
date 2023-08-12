@@ -3,6 +3,9 @@
 %% API exports
 -export([main/1]).
 
+%% Export for testing
+-export([compile_and_run/2]).
+
 %%====================================================================
 %% API functions
 %%====================================================================
@@ -10,9 +13,7 @@
 %% escript Entry point
 main([Exercise, InputDir, OutputDir]) ->
     file:set_cwd(InputDir),
-    {Module, Modules, Abstract} = etr_compile:compile(InputDir, Exercise),
-    code:atomic_load(Modules),
-    Results = etr_runner:run(Module, Abstract),
+    Results = compile_and_run(InputDir, Exercise),
     io:format("~p~n", [Results]),
     ResultsJson = jsx:encode(Results, [space, {indent, 2}]),
     io:format("~s~n", [ResultsJson]),
@@ -27,3 +28,16 @@ write_result(Content, OutputDir) ->
     ResultJsonPath = filename:join(OutputDir, "results.json"),
     {ok, FD} = file:open(ResultJsonPath, [write]),
     io:format(FD, "~s~n", [Content]).
+
+compile_and_run(InputDir, Exercise) ->
+    case etr_compile:compile(InputDir, Exercise) of
+        {Module, Modules, Abstract} ->
+            code:atomic_load(Modules),
+            etr_runner:run(Module, Abstract);
+        {error, Errors} ->
+            #{
+                version => 2,
+                status => <<"error">>,
+                message => iolist_to_binary(etr_humanize:compilation(Errors))
+            }
+    end.
