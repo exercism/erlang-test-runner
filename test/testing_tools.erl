@@ -1,6 +1,6 @@
 -module(testing_tools).
 
--export([scan_and_rename/1, unslug/1]).
+-export([scan_and_rename/1, unslug/1, random_docker_name/0]).
 
 scan_and_rename(Path) ->
     case {filelib:is_dir(Path), re:run(Path, "\\.er_$", [{capture, none}])} of
@@ -39,3 +39,7 @@ unslug(String) ->
     Unslugged = string:replace(String, "_", "-", all),
     ct:log("Unslugged: ~s -> ~s", [String, Unslugged]),
     Unslugged.
+
+random_docker_name() ->
+    Chars = [rand:uniform(26)+$a-1 || _ <- lists:seq(1, 10)],
+    iolist_to_binary(Chars).

@@ -185,14 +185,31 @@ groups() ->
 init_per_suite(Config) ->
     DataDir = ?config(data_dir, Config),
     testing_tools:scan_and_rename(DataDir),
-    case os:find_executable("docker") of
-        false ->
+    case {os:find_executable("docker"), os:getenv("SOURCE_PATH", false)} of
+        {false, _} ->
             {skip, no_docker};
-        Docker ->
-            [{docker, Docker} | Config]
+        {_, false} ->
+            {skip, no_sources};
+        {Docker, SourcePath} ->
+            ImageName = testing_tools:random_docker_name(),
+            {done, 0, DockerBuildOutput} = erlsh:run([
+                Docker,
+                build,
+                "-t",
+                ImageName,
+                SourcePath
+            ]),
+            ct:log("Built image '~s': ~s", [ImageName, DockerBuildOutput]),
+            [
+                {image_name, ImageName},
+                {docker, Docker}
+                | Config
+            ]
     end.
 
 end_per_suite(Config) ->
+    {done, 0, DockerRm} = erlsh:run([?config(docker, Config), rmi, ?config(image_name, Config)]),
+    ct:log("Deleted image '~s': ~s", [?config(image_name, Config), DockerRm]),
     Config.
 
 init_per_testcase(TestCase, Config) ->
@@ -209,6 +226,7 @@ init_per_testcase(TestCase, Config) ->
 end_per_testcase(_TestCase, Config) -> Config.
 
 run_docker(Config) ->
+    ImageName = ?config(image_name, Config),
     Target = filename:join(?config(priv_dir, Config), ?config(folder_name, Config)),
     {done, 0, _} = erlsh:run([
         ?config(docker, Config),
@@ -217,7 +235,7 @@ run_docker(Config) ->
         io_lib:format("~s:/input:ro", [?config(base_dir, Config)]),
         "--volume",
         io_lib:format("~s:/output", [Target]),
-        "erlang_test_runner:common_test",
+        ImageName,
         ?config(folder_name, Config),
         "/input",
         "/output"
