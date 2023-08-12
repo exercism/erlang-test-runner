@@ -1,0 +1,19 @@
+name: Check formatting
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "25.3"
+          rebar3-version: "3.22"
+      - run: rebar3 fmt -c
