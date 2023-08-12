@@ -12,9 +12,10 @@
     init_per_testcase/2,
     end_per_testcase/2,
 
+    %% Generic test implementation
     '$handle_undefined_function'/2,
 
-    %% Test Cases
+    %% Special Test Cases
     allergies/1,
     two_fer/1
 ]).
