@@ -41,5 +41,5 @@ unslug(String) ->
     Unslugged.
 
 random_docker_name() ->
-    Chars = [rand:uniform(26)+$a-1 || _ <- lists:seq(1, 10)],
+    Chars = [rand:uniform(26) + $a - 1 || _ <- lists:seq(1, 10)],
     iolist_to_binary(Chars).
