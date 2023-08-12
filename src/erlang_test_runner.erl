@@ -34,9 +34,10 @@ compile_and_run(InputDir, Exercise) ->
         {Module, Modules, Abstract} ->
             code:atomic_load(Modules),
             etr_runner:run(Module, Abstract);
-        {error, _Errors} ->
+        {error, Errors} ->
             #{
                 version => 2,
-                status => <<"error">>
+                status => <<"error">>,
+                message => iolist_to_binary(etr_humanize:compilation(Errors))
             }
     end.
