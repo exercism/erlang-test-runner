@@ -9,10 +9,10 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: erlef/setup-beam@v1
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+      - uses: erlef/setup-beam@61e01a43a562a89bfc54c7f9a378ff67b03e4a21
         with:
           otp-version: "25.3"
           rebar3-version: "3.22"
