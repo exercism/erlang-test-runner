@@ -30,7 +30,7 @@ get_test_module_from(Module) ->
 run_case(Module, Fun, false) ->
     {atom_to_binary(Fun, utf8), run_case(erlang:make_fun(Module, Fun, 0))};
 run_case(Module, Gen, true) ->
-    Runner = fun({Description, {Line, Fun}}) -> {list_to_binary(Description), run_case(Fun)} end,
+    Runner = fun({Description, {_Line, Fun}}) -> {list_to_binary(Description), run_case(Fun)} end,
     case Module:Gen() of
         {_, {_, _}} = Case -> Runner(Case);
         L when is_list(L) -> lists:map(Runner, L)

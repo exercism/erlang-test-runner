@@ -12,9 +12,10 @@
     init_per_testcase/2,
     end_per_testcase/2,
 
+    %% Generic test implementation
     '$handle_undefined_function'/2,
 
-    %% Test Cases
+    %% Special Test Cases
     allergies/1,
     two_fer/1
 ]).
@@ -170,8 +171,7 @@ init_per_testcase(TestCase, Config) ->
     Config1.
 
 end_per_testcase(TestCase, Config) ->
-    %% eunit:stop(),
-    ct:log("EUnit stopped"),
+    ct:log("EUnit stopped for ~p", [TestCase]),
     [code:purge(Mod) || {Mod, _, _} <- ?config(module_specs, Config)],
     ct:log("Purged modules from memory: ~p", [[Mod || {Mod, _, _} <- ?config(module_specs, Config)]]),
     file:set_cwd(?config(old_pwd, Config)).

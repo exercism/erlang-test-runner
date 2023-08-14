@@ -12,86 +12,8 @@
     init_per_testcase/2,
     end_per_testcase/2,
 
+    %% Generic test implementation
     '$handle_undefined_function'/2
-
-    %% Test Cases
-    %% accumulate/1,
-    %% allergies/1,
-    %% all_your_base/1,
-    %% anagram/1,
-    %% armstrong_numbers/1,
-    %% atbash_cipher/1,
-    %% bank_account/1,
-    %% beer_song/1,
-    %% bob/1,
-    %% book_store/1,
-    %% bracket_push/1,
-    %% change/1,
-    %% circular_buffer/1,
-    %% clock/1,
-    %% collatz_conjecture/1,
-    %% complex_numbers/1,
-    %% connect/1,
-    %% crypto_square/1,
-    %% custom_set/1,
-    %% darts/1,
-    %% diamond/1,
-    %% difference_of_squares/1,
-    %% dominoes/1,
-    %% etl/1,
-    %% forth/1,
-    %% gigasecond/1,
-    %% grade_school/1,
-    %% grains/1,
-    %% hamming/1,
-    %% hello_world/1,
-    %% isbn_verifier/1,
-    %% isogram/1,
-    %% largest_series_product/1,
-    %% leap/1,
-    %% list_ops/1,
-    %% luhn/1,
-    %% meetup/1,
-    %% minesweeper/1,
-    %% nth_prime/1,
-    %% nucleotide_count/1,
-    %% palindrome_products/1,
-    %% pangram/1,
-    %% parallel_letter_frequency/1,
-    %% pascals_triangle/1,
-    %% perfect_numbers/1,
-    %% phone_number/1,
-    %% poker/1,
-    %% prime_factors/1,
-    %% protein_translation/1,
-    %% pythagorean_triplet/1,
-    %% queen_attack/1,
-    %% rail_fence_cipher/1,
-    %% raindrops/1,
-    %% rational_numbers/1,
-    %% rna_transcription/1,
-    %% robot_simulator/1,
-    %% roman_numerals/1,
-    %% rotational_cipher/1,
-    %% run_length_encoding/1,
-    %% saddle_points/1,
-    %% satellite/1,
-    %% scrabble_score/1,
-    %% secret_handshake/1,
-    %% series/1,
-    %% sieve/1,
-    %% simple_linked_list/1,
-    %% space_age/1,
-    %% spiral_matrix/1,
-    %% strain/1,
-    %% sublist/1,
-    %% sum_of_multiples/1,
-    %% transpose/1,
-    %% triangle/1,
-    %% two_fer/1,
-    %% variable_length_quantity/1,
-    %% word_count/1,
-    %% zipper/1
 ]).
 
 -define(EXERCISES, [
@@ -185,14 +107,31 @@ groups() ->
 init_per_suite(Config) ->
     DataDir = ?config(data_dir, Config),
     testing_tools:scan_and_rename(DataDir),
-    case os:find_executable("docker") of
-        false ->
+    case {os:find_executable("docker"), os:getenv("SOURCE_PATH", false)} of
+        {false, _} ->
             {skip, no_docker};
-        Docker ->
-            [{docker, Docker} | Config]
+        {_, false} ->
+            {skip, no_sources};
+        {Docker, SourcePath} ->
+            ImageName = testing_tools:random_docker_name(),
+            {done, 0, DockerBuildOutput} = erlsh:run([
+                Docker,
+                build,
+                "-t",
+                ImageName,
+                SourcePath
+            ]),
+            ct:log("Built image '~s': ~s", [ImageName, DockerBuildOutput]),
+            [
+                {image_name, ImageName},
+                {docker, Docker}
+                | Config
+            ]
     end.
 
 end_per_suite(Config) ->
+    {done, 0, DockerRm} = erlsh:run([?config(docker, Config), rmi, ?config(image_name, Config)]),
+    ct:log("Deleted image '~s': ~s", [?config(image_name, Config), DockerRm]),
     Config.
 
 init_per_testcase(TestCase, Config) ->
@@ -209,15 +148,17 @@ init_per_testcase(TestCase, Config) ->
 end_per_testcase(_TestCase, Config) -> Config.
 
 run_docker(Config) ->
+    ImageName = ?config(image_name, Config),
     Target = filename:join(?config(priv_dir, Config), ?config(folder_name, Config)),
     {done, 0, _} = erlsh:run([
         ?config(docker, Config),
         "run",
+        "--rm",
         "--volume",
         io_lib:format("~s:/input:ro", [?config(base_dir, Config)]),
         "--volume",
         io_lib:format("~s:/output", [Target]),
-        "erlang_test_runner:common_test",
+        ImageName,
         ?config(folder_name, Config),
         "/input",
         "/output"
@@ -227,13 +168,17 @@ check_result(Config) ->
     {ok, JSON} = file:read_file(
         filename:join([?config(priv_dir, Config), ?config(folder_name, Config), "results.json"])
     ),
-    #{<<"version">> := 2} = jsx:decode(JSON).
+    #{<<"version">> := Version, <<"status">> := Status} = R = jsx:decode(JSON),
+    ct:log("Testresults: ~p", [R]),
+    {Version, Status}.
 
 '$handle_undefined_function'(F, A) ->
     case {lists:member(F, ?EXERCISES), A} of
         {true, [Config]} ->
             run_docker(Config),
-            check_result(Config);
+            {V, S} = check_result(Config),
+            ?assertEqual(2, V),
+            ?assertMatch(<<"pass">>, S);
         _ ->
             error(undef)
     end.

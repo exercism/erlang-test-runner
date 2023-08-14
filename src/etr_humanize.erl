@@ -2,7 +2,6 @@
 
 -export([assertion/1, compilation/1]).
 
-
 assertion({assertStringEqual, Info}) ->
     io_lib:format(
         "The expression `~s` was expected to return a string or binary "
@@ -54,17 +53,19 @@ assertion({Assertion, Info}) ->
 
 compilation([]) ->
     "No errors, please report this together with your code at https://github.com/exercism/erlang-test-runner/issues/new";
-compilation([{File, [{{L, _C}, erl_parse, ErrData} ]}|_]) ->
+compilation([{File, [{{L, _C}, erl_parse, ErrData}]} | _]) ->
     ErrMessage = erl_parse:format_error(ErrData),
     FileName = filename:basename(File),
     io_lib:format("Could not parse the file '~s' at line ~p: ~s", [FileName, L, ErrMessage]);
-compilation([{File, [{{L, _C}, erl_lint, ErrData}]}|_]) ->
+compilation([{File, [{{L, _C}, erl_lint, ErrData}]} | _]) ->
     ErrMessage = erl_lint:format_error(ErrData),
     FileName = filename:basename(File),
     io_lib:format("Could not parse the file '~s' at line ~p: ~s", [FileName, L, ErrMessage]);
-compilation([Unknown|_]) ->
+compilation([Unknown | _]) ->
     io_lib:format(
         "An unknown build error occured, please report an issue at "
         "https://github.com/exercism/erlang-test-runner/issues/new  "
         "and paste your full file into the report as well as "
-        "this error info: ~p.", [Unknown]).
+        "this error info: ~p.",
+        [Unknown]
+    ).

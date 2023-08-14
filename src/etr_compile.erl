@@ -8,7 +8,8 @@ compile(BaseFolder, Exercise) ->
         {ok, Solution = {Module, _, _}} ->
             {Tests, AbstractTests} = compile_test(BaseFolder, ModuleName),
             {Module, [Solution, Tests], AbstractTests};
-        {error, Errors} -> {error, Errors}
+        {error, Errors} ->
+            {error, Errors}
     end.
 
 %%====================================================================
@@ -30,7 +31,8 @@ compile_solution(BaseFolder, Name) ->
         {ok, Module, Binary, _Warnings} ->
             BeamName = binary_to_list(iolist_to_binary([Name | ".beam"])),
             {ok, {Module, BeamName, Binary}};
-        {error, Errors, _Warnings} -> {error, Errors}
+        {error, Errors, _Warnings} ->
+            {error, Errors}
     end.
 
 compile_test(BaseFolder, Name) ->
