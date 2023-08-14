@@ -71,14 +71,14 @@ end_per_testcase(_TestCase, Config) ->
 
 empty_file(Config) ->
     Result = erlang_test_runner:compile_and_run(?config(base_dir, Config), "two_fer"),
-    ?assertTopLevel(<<"error">>, Result),
+    ?assertTopLevel(error, Result),
     ?assertMessage(
         <<"Could not parse the file 'two_fer.erl' at line 1: no module definition">>, Result
     ).
 
 weird_characters_in_module(Config) ->
     Result = erlang_test_runner:compile_and_run(?config(base_dir, Config), "two_fer"),
-    ?assertTopLevel(<<"error">>, Result),
+    ?assertTopLevel(error, Result),
     ?assertMessage(
         <<"Could not parse the file 'two_fer.erl' at line 1: syntax error before: $e">>, Result
     ).

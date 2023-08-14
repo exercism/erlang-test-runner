@@ -2,6 +2,7 @@
 
 -export([assertion/1, compilation/1]).
 
+-spec assertion({atom(), proplists:proplist()}) -> iodata().
 assertion({assertStringEqual, Info}) ->
     io_lib:format(
         "The expression `~s` was expected to return a string or binary "
@@ -51,6 +52,11 @@ assertion({Assertion, Info}) ->
         [Assertion, Info]
     ).
 
+-spec compilation([
+    {file:filename_all(), [
+        {{non_neg_integer(), non_neg_integer()}, erl_parse | erl_lint, term()} | term()
+    ]}
+]) -> iodata().
 compilation([]) ->
     "No errors, please report this together with your code at https://github.com/exercism/erlang-test-runner/issues/new";
 compilation([{File, [{{L, _C}, erl_parse, ErrData}]} | _]) ->

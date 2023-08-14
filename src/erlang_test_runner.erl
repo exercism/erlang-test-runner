@@ -11,6 +11,7 @@
 %%====================================================================
 
 %% escript Entry point
+-spec main([string()]) -> no_return().
 main([Exercise, InputDir, OutputDir]) ->
     file:set_cwd(InputDir),
     Results = compile_and_run(InputDir, Exercise),
@@ -24,20 +25,22 @@ main([Exercise, InputDir, OutputDir]) ->
 %% Internal functions
 %%====================================================================
 
+-spec write_result(string(), file:filename_all()) -> ok.
 write_result(Content, OutputDir) ->
     ResultJsonPath = filename:join(OutputDir, "results.json"),
     {ok, FD} = file:open(ResultJsonPath, [write]),
     io:format(FD, "~s~n", [Content]).
 
+-spec compile_and_run(file:filename_all(), string()) -> etr_runner:result().
 compile_and_run(InputDir, Exercise) ->
     case etr_compile:compile(InputDir, Exercise) of
-        {Module, Modules, Abstract} ->
+        {ok, Module, Modules, Abstract} ->
             code:atomic_load(Modules),
             etr_runner:run(Module, Abstract);
         {error, Errors} ->
             #{
                 version => 2,
-                status => <<"error">>,
+                status => error,
                 message => iolist_to_binary(etr_humanize:compilation(Errors))
             }
     end.
