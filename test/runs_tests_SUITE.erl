@@ -32,8 +32,8 @@
         __Tests = map_get(tests, __Y),
         __NumTests = lists:foldl(
             fun
-                (#{status := <<"pass">>}, C) -> C;
-                (#{status := <<"fail">>}, C) -> C + 1
+                (#{status := pass}, C) -> C;
+                (#{status := fail}, C) -> C + 1
             end,
             0,
             __Tests
@@ -156,7 +156,7 @@ init_per_testcase(TestCase, Config) ->
     {ok, PWD} = file:get_cwd(),
     file:set_cwd(BaseDir),
     ct:log("Changed pwd to ~s", [BaseDir]),
-    {TestCase, ModuleSpecs, Abstract} = etr_compile:compile(BaseDir, FolderName),
+    {ok, TestCase, ModuleSpecs, Abstract} = etr_compile:compile(BaseDir, FolderName),
     code:atomic_load(ModuleSpecs),
     ct:log("Modules loaded: ~p", [[Mod || {Mod, _, _} <- ModuleSpecs]]),
     Config1 = [
@@ -180,7 +180,7 @@ end_per_testcase(TestCase, Config) ->
     case {lists:member(F, ?EXERCISES), A} of
         {true, [Config]} ->
             Result = etr_runner:run(F, ?config(test_abstract, Config)),
-            ?assertTopLevel(<<"pass">>, Result),
+            ?assertTopLevel(pass, Result),
             ?assertNumFails(0, Result);
         _ ->
             error(undef)
@@ -198,7 +198,7 @@ allergies(Config) ->
     Result = etr_runner:run(allergies, ?config(test_abstract, Config)),
     TestCodesActual = extract_test_codes(map_get(tests, Result)),
     %% erlang:error(Result),
-    ?assertTopLevel(<<"fail">>, Result),
+    ?assertTopLevel(fail, Result),
     ?assertNumFails(6, Result),
     ?assertEqual(length(TestCodesExpected), length(TestCodesActual)),
     ct:log(lists:zip(TestCodesExpected, TestCodesActual)),
@@ -209,7 +209,7 @@ allergies(Config) ->
 
 two_fer(Config) ->
     Result = etr_runner:run(two_fer, ?config(test_abstract, Config)),
-    ?assertTopLevel(<<"fail">>, Result),
+    ?assertTopLevel(fail, Result),
     ?assertNumFails(1, Result).
 
 extract_test_codes(L) ->

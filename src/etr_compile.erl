@@ -1,13 +1,18 @@
 -module('etr_compile').
 
 -export([compile/2]).
+-export_type([module_data/0]).
 
+-type module_data() :: {module(), string(), binary()}.
+
+-spec compile(file:name_all(), string()) ->
+    {error, [string()]} | {ok, module(), [module_data()], [erl_parse:abstract_form()]}.
 compile(BaseFolder, Exercise) ->
     ModuleName = string:replace(Exercise, "-", "_", all),
     case compile_solution(BaseFolder, ModuleName) of
         {ok, Solution = {Module, _, _}} ->
             {Tests, AbstractTests} = compile_test(BaseFolder, ModuleName),
-            {Module, [Solution, Tests], AbstractTests};
+            {ok, Module, [Solution, Tests], AbstractTests};
         {error, Errors} ->
             {error, Errors}
     end.
@@ -16,6 +21,8 @@ compile(BaseFolder, Exercise) ->
 %% Internal functions
 %%====================================================================
 
+-spec compile_solution(file:name_all(), string()) ->
+    {ok, module_data()} | {error, [string()]}.
 compile_solution(BaseFolder, Name) ->
     FileName = binary_to_list(
         filename:join(
@@ -35,6 +42,7 @@ compile_solution(BaseFolder, Name) ->
             {error, Errors}
     end.
 
+-spec compile_test(file:name_all(), string()) -> {module_data(), [erl_parse:abstract_form()]}.
 compile_test(BaseFolder, Name) ->
     FileName = binary_to_list(
         filename:join(
