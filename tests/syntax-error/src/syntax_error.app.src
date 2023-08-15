@@ -1,0 +1,9 @@
+{application, syntax_error,
+  [{description, "exercism.org - syntax_error"},
+    {vsn, "0.0.1"},
+    {modules, []},
+    {registered, []},
+    {applications, [kernel,
+      stdlib]},
+    {env, []}
+  ]}.
