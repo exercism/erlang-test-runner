@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@b32f140b0c872d58512e0a66172253c302617b90
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@885d1462b80bc1c1c7f0b00334ad271f09369c55
+        uses: docker/setup-buildx-action@0d103c3126aa41d772a8362f6aa67afac040f80c
         with:
           install: true
 
