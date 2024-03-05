@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@b32f140b0c872d58512e0a66172253c302617b90
-      - uses: erlef/setup-beam@a23b1fc4452a892cf3e92cbc2c405256cd6c27ec
+      - uses: erlef/setup-beam@2f0cc07b4b9bea248ae098aba9e1a8a1de5ec24c
         with:
           otp-version: "25.3"
           rebar3-version: "3.22"
