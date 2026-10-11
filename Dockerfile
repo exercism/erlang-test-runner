@@ -2,7 +2,7 @@ FROM hexpm/erlang:29.1-alpine-3.24.2 AS erlang
 
 WORKDIR /app
 
-ENV REBAR_VERSION=3.22.0
+ENV REBAR_VERSION=3.27.0
 
 FROM erlang AS downloader
 
