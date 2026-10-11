@@ -22,6 +22,8 @@ RUN ./rebar3 escriptize
 
 FROM erlang AS runner
 
+RUN apk --no-cache add jq
+
 COPY --from=builder /app/_build/default/lib/erl_exercism /opt/erl_exercism
 COPY --from=builder /app/_build/default/bin/erlang_test_runner /opt/test-runner/bin/
 COPY bin/run.sh /opt/test-runner/bin/run.sh
