@@ -9,7 +9,7 @@
       system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
-          beamPackages = with pkgs.beam_minimal; packagesWith interpreters.erlangR25;
+          beamPackages = pkgs.beam29Packages;
         in
           rec {
             packages = flake-utils.lib.flattenTree rec {
