@@ -1,8 +1,8 @@
-FROM hexpm/erlang:25.3.2.3-alpine-3.18.2 AS erlang
+FROM hexpm/erlang:29.1-alpine-3.24.2 AS erlang
 
 WORKDIR /app
 
-ENV REBAR_VERSION=3.22.0
+ENV REBAR_VERSION=3.27.0
 
 FROM erlang AS downloader
 
@@ -21,6 +21,8 @@ COPY src/ src/
 RUN ./rebar3 escriptize
 
 FROM erlang AS runner
+
+RUN apk --no-cache add jq
 
 COPY --from=builder /app/_build/default/lib/erl_exercism /opt/erl_exercism
 COPY --from=builder /app/_build/default/bin/erlang_test_runner /opt/test-runner/bin/

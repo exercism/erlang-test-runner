@@ -32,7 +32,7 @@ for test_dir in tests/*; do
     #   "${results_file_path}"
 
     echo "${test_dir_name}: comparing results.json to expected_results.json"
-    diff "${results_file_path}" "${expected_results_file_path}"
+    diff -u <(jq --sort-keys . "${results_file_path}") <(jq --sort-keys . "${expected_results_file_path}")
 
     if [ $? -ne 0 ]; then
         exit_code=1
