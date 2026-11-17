@@ -1,0 +1,5 @@
+% Erlang reads this file at boot (ERL_INETRC in the Dockerfile).
+% Test runs have no network, so it resolves host names from /etc/hosts only
+% and never asks a DNS server. Otherwise every run waits about 5 seconds
+% for a DNS lookup made during boot to time out.
+{lookup, [file]}.
