@@ -30,6 +30,10 @@ COPY bin/run.sh /opt/test-runner/bin/run.sh
 
 ENV ERL_LIBS=/opt/erl_exercism
 
+# Resolve host names from files only, so boot never waits on DNS (see inetrc)
+COPY inetrc /opt/test-runner/inetrc
+ENV ERL_INETRC=/opt/test-runner/inetrc
+
 WORKDIR "/opt/test-runner"
 
 ENTRYPOINT ["/opt/test-runner/bin/run.sh"]
