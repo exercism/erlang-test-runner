@@ -1,0 +1,5 @@
+-module(example).
+
+-export([two_fer/0]).
+
+two_fer() -> "One for you, one for me.".

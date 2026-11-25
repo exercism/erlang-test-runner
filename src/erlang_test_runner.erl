@@ -37,6 +37,12 @@ compile_and_run(InputDir, Exercise) ->
         {ok, Module, Modules, Abstract} ->
             code:atomic_load(Modules),
             etr_runner:run(Module, Abstract);
+        {error, {module_name, Module, Expected}} ->
+            #{
+                version => 2,
+                status => error,
+                message => unicode:characters_to_binary(etr_humanize:module_name(Module, Expected))
+            };
         {error, Errors} ->
             #{
                 version => 2,
