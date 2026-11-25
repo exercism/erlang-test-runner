@@ -1,6 +1,6 @@
 -module(etr_humanize).
 
--export([assertion/1, compilation/1]).
+-export([assertion/1, compilation/1, module_name/2]).
 
 -spec assertion({atom(), proplists:proplist()}) -> iodata().
 assertion({assertStringEqual, Info}) ->
@@ -74,4 +74,12 @@ compilation([Unknown | _]) ->
         "and paste your full file into the report as well as "
         "this error info: ~p.",
         [Unknown]
+    ).
+
+-spec module_name(module(), module()) -> unicode:chardata().
+module_name(Module, Expected) ->
+    io_lib:format(
+        "The module in '~ts.erl' is called '~ts', but it needs to be called '~ts'. "
+        "Change `-module(~tw).` to `-module(~tw).`",
+        [Expected, Module, Expected, Module, Expected]
     ).

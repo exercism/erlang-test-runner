@@ -1,0 +1,5 @@
+{
+  "message": "The module in 'wrong_module_name.erl' is called 'leap', but it needs to be called 'wrong_module_name'. Change `-module(leap).` to `-module(wrong_module_name).`",
+  "status": "error",
+  "version": 2
+}

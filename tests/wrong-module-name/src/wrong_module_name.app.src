@@ -1,0 +1,9 @@
+{application, wrong_module_name,
+  [{description, "exercism.org - wrong_module_name"},
+    {vsn, "0.0.1"},
+    {modules, []},
+    {registered, []},
+    {applications, [kernel,
+      stdlib]},
+    {env, []}
+  ]}.

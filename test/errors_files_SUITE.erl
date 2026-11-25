@@ -14,7 +14,8 @@
 
     %% Test Cases
     empty_file/1,
-    weird_characters_in_module/1
+    weird_characters_in_module/1,
+    wrong_module_name/1
 ]).
 
 -define(assertVersion(Expr), ?assertMatch(#{version := 2}, Expr)).
@@ -32,7 +33,8 @@
 
 all() ->
     [
-        {group, parse_errors}
+        {group, parse_errors},
+        wrong_module_name
     ].
 
 groups() ->
@@ -81,4 +83,15 @@ weird_characters_in_module(Config) ->
     ?assertTopLevel(error, Result),
     ?assertMessage(
         <<"Could not parse the file 'two_fer.erl' at line 1: syntax error before: $e">>, Result
+    ).
+
+wrong_module_name(Config) ->
+    Result = erlang_test_runner:compile_and_run(?config(base_dir, Config), "two_fer"),
+    ?assertTopLevel(error, Result),
+    ?assertMessage(
+        <<
+            "The module in 'two_fer.erl' is called 'example', but it needs to be called "
+            "'two_fer'. Change `-module(example).` to `-module(two_fer).`"
+        >>,
+        Result
     ).

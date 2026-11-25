@@ -6,13 +6,19 @@
 -type module_data() :: {module(), string(), binary()}.
 
 -spec compile(file:name_all(), string()) ->
-    {error, [string()]} | {ok, module(), [module_data()], [erl_parse:abstract_form()]}.
+    {error, [string()]}
+    | {error, {module_name, module(), module()}}
+    | {ok, module(), [module_data()], [erl_parse:abstract_form()]}.
 compile(BaseFolder, Exercise) ->
     ModuleName = string:replace(Exercise, "-", "_", all),
+    Expected = list_to_atom(unicode:characters_to_list(ModuleName)),
     case compile_solution(BaseFolder, ModuleName) of
-        {ok, Solution = {Module, _, _}} ->
+        {ok, Solution = {Expected, _, _}} ->
             {Tests, AbstractTests} = compile_test(BaseFolder, ModuleName),
-            {ok, Module, [Solution, Tests], AbstractTests};
+            {ok, Expected, [Solution, Tests], AbstractTests};
+        %% The tests call the module by the exercise's name, so any other name can't work.
+        {ok, {Module, _, _}} ->
+            {error, {module_name, Module, Expected}};
         {error, Errors} ->
             {error, Errors}
     end.
